@@ -18,8 +18,8 @@ A modern, multi-functional **Flutter News App** that aggregates news, weather up
 ---
 
 ## 📸 Screenshots
-
-> *(Insert screenshots here)*
+<img width="180" height="320" alt="image" src="https://github.com/user-attachments/assets/680c12a9-7741-42a4-8a6f-f08162e6a28b" />
+<img width="180" height="320" alt="image" src="https://github.com/user-attachments/assets/895400b1-0331-4d9f-ac98-e731610dfbdd" />
 
 ---
 
