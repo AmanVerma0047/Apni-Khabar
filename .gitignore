@@ -44,4 +44,4 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-lib\services\ApiKeys.dart
+lib/services/ApiKeys.dart
