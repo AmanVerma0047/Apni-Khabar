@@ -1,16 +1,34 @@
-# news_app
+# 📰 NewsApp - Flutter
 
-A new Flutter project.
+A modern, multi-functional **Flutter News App** that aggregates news, weather updates, and video content using:
 
-## Getting Started
+- [NewsAPI](https://newsapi.org) – for global news articles
+- [OpenWeatherMap API](https://openweathermap.org/api) – for weather data
+- [YouTube Data API](https://developers.google.com/youtube/v3) – for video content
+- [Firebase](https://firebase.google.com) – for backend services like Auth, Firestore, Storage, etc.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 📱 Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+✅ Browse latest news headlines  
+✅ Get real-time weather updates based on location  
+✅ Watch relevant YouTube videos related to current affairs  
+✅ User authentication (Firebase Auth)  
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 📸 Screenshots
+
+> *(Insert screenshots here)*
+
+---
+
+## 🛠️ Built With
+
+- [Flutter](https://flutter.dev)
+- [Firebase](https://firebase.google.com)
+- [NewsAPI](https://newsapi.org)
+- [OpenWeatherMap](https://openweathermap.org)
+- [YouTube Data API](https://developers.google.com/youtube)
+
+---
