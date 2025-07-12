@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "408644541017",
+    "project_id": "apni-khabar-c059b",
+    "storage_bucket": "apni-khabar-c059b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408644541017:android:80bb17501d558d5f1a6f48",
+        "android_client_info": {
+          "package_name": "com.example.news_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408644541017-8pnvhqvkqtmve2g2gtn3ormstab3mph8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.news_app",
+            "certificate_hash": "a50724024c8ab3662bb6fbebf5d6eb3a1ec37a12"
+          }
+        },
+        {
+          "client_id": "408644541017-900c1bp6fe9a5s68pbe2l1uh21itocfh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVa-KrrwJL1WdowUvBAVcDMSL5h44d6J4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408644541017-900c1bp6fe9a5s68pbe2l1uh21itocfh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
