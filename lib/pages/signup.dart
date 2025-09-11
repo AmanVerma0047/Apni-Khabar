@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login_page.dart';
-import 'landing_page.dart'; // You'll need to create or link to your HomePage or Dashboard
+import 'landing_page.dart'; 
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -60,7 +60,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const MainPage()), // Replace with your main screen
+        MaterialPageRoute(builder: (_) => const MainPage()),
       );
     } catch (e) {
       setState(() => isLoading = false);
