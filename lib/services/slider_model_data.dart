@@ -7,20 +7,26 @@ import 'ApiKeys.dart';
 class NewsSliderItem {
   final String title;
   final String imageUrl;
+  final String url; 
 
-  NewsSliderItem({required this.title, required this.imageUrl});
+  NewsSliderItem({
+    required this.title,
+    required this.imageUrl,
+    required this.url,
+  });
 
   factory NewsSliderItem.fromJson(Map<String, dynamic> json) {
     return NewsSliderItem(
       title: json['title'] ?? 'No Title',
       imageUrl: json['urlToImage'] ?? '',
+      url: json['url'] ?? '', 
     );
   }
 }
 
 class SliderModelData {
-
-  static final String _apiUrl = 'https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=$NEWS_API_KEY';
+  static final String _apiUrl =
+      'https://newsapi.org/v2/everything?q=india&apiKey=$NEWS_API_KEY';
 
   static Future<List<NewsSliderItem>> fetchNewsItems() async {
     final response = await http.get(Uri.parse(_apiUrl));
@@ -31,7 +37,8 @@ class SliderModelData {
 
       return articles
           .map((article) => NewsSliderItem.fromJson(article))
-          .where((item) => item.imageUrl.isNotEmpty)
+          .where((item) =>
+              item.imageUrl.isNotEmpty && item.url.isNotEmpty)
           .toList();
     } else {
       throw Exception('Failed to load news');

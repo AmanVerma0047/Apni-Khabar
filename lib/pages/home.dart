@@ -21,44 +21,42 @@ class _HomeState extends State<Home> {
   List<CategoryModel> categories = [];
   List<NewsSliderItem> _newsItems = [];
   List<ArticleModel> articles = [];
+
   bool _loading = true;
-  int activeindex = 0;
+  int activeIndex = 0;
 
   @override
   void initState() {
-    setState(() {
-      categories = getCategories();
-      _initData();
-    });
     super.initState();
+    categories = getCategories();
+    _initData();
   }
 
   Future<void> _initData() async {
-    await getNews(); // wait for both to complete
-    await _loadNews();
+    await Future.wait([
+      _loadTopNews(),
+      _loadLatestNews(),
+    ]);
+    if (mounted) {
+      setState(() => _loading = false);
+    }
   }
 
-  getNews() async {
-    News newsclass = News();
-    await newsclass.getNews();
-    articles = newsclass.news;
-    setState(() {
-      _loading = false;
-    });
+  Future<void> _loadLatestNews() async {
+    News newsClass = News();
+    await newsClass.getNews();
+    articles = newsClass.news;
   }
 
-  Future<void> _loadNews() async {
+  Future<void> _loadTopNews() async {
     try {
       final news = await SliderModelData.fetchNewsItems();
-      setState(() {
-        _newsItems = news;
-        _loading = false;
-      });
+      _newsItems = news;
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error loading news: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading top news')),
+      );
     }
   }
 
@@ -66,74 +64,65 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _loading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: () async {
-                await getNews();
-                await _loadNews();
-              },
+              onRefresh: _initData,
               child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Top News Carousal Section
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 20.0,
-                        bottom: 20.0,
-                        top: 20.0,
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            'Top News',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            ' - Show Latest Updates',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: const Color.fromARGB(255, 0, 179, 249),
-                            ),
-                          ),
-                        ],
+                    // 🔹 TOP NEWS TITLE
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
+                      child: Text(
+                        'Top News',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
 
-                    // Carousel Slider for Top News
+                    // 🔹 TOP NEWS CAROUSEL
                     _newsItems.isEmpty
-                        ? Center(child: CircularProgressIndicator())
+                        ? const Center(child: CircularProgressIndicator())
                         : CarouselSlider.builder(
-                            itemCount: 5,
+                            itemCount: _newsItems.length,
                             itemBuilder: (context, index, realIndex) {
-                              return buildImage(
-                                _newsItems[index].imageUrl,
-                                index,
-                                _newsItems[index].title,
+                              final item = _newsItems[index];
+
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ArticleView(
+                                        blogUrl: item.url ?? '',
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: _buildCarouselItem(
+                                  item.imageUrl,
+                                  item.title,
+                                ),
                               );
                             },
                             options: CarouselOptions(
                               height: 200,
                               autoPlay: true,
-                              autoPlayInterval: Duration(seconds: 3),
-                              autoPlayAnimationDuration: Duration(
-                                milliseconds: 800,
-                              ),
                               enlargeCenterPage: true,
-                              onPageChanged: (index, reason) => setState(() {
-                                activeindex = index;
-                              }),
+                              onPageChanged: (index, reason) {
+                                setState(() => activeIndex = index);
+                              },
                             ),
                           ),
-                    SizedBox(height: 10),
-                    buildIndicator(),
-                    SizedBox(height: 10),
 
-                    // Categories Section
+                    const SizedBox(height: 10),
+                    _buildIndicator(),
+
+                    // 🔹 CATEGORIES
                     Padding(
-                      padding: const EdgeInsets.all(15.0),
+                      padding: const EdgeInsets.all(15),
                       child: SizedBox(
                         height: 70,
                         child: ListView.builder(
@@ -153,8 +142,8 @@ class _HomeState extends State<Home> {
                                 );
                               },
                               child: CategoryTile(
-                                image: cat.image,
-                                categoryName: cat.categoryName,
+                                image: cat.image ?? '',
+                                categoryName: cat.categoryName ?? '',
                               ),
                             );
                           },
@@ -162,39 +151,29 @@ class _HomeState extends State<Home> {
                       ),
                     ),
 
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20.0, bottom: 10.0),
-                      child: Row(
-                        children: [
-                          // This is the title for the latest news section
-                          Text(
-                            'Latest News',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            ' - Trending Now',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: const Color.fromARGB(255, 0, 179, 249),
-                            ),
-                          ),
-                        ],
+                    // 🔹 LATEST NEWS TITLE
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
+                      child: Text(
+                        'Latest News',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    SizedBox(height: 10),
+
+                    // 🔹 LATEST NEWS LIST
                     ListView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: 10,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount:
+                          articles.length > 10 ? 10 : articles.length,
                       itemBuilder: (context, index) {
+                        final article = articles[index];
                         return BlogTile(
-                          url: articles[index].url ?? '',
-                          imageurl: articles[index].urlToImage ?? '',
-                          title: articles[index].title ?? '',
-                          desc: articles[index].description ?? '',
+                          imageurl: article.urlToImage ?? '',
+                          title: article.title ?? '',
+                          desc: article.description ?? '',
+                          url: article.url ?? '',
                         );
                       },
                     ),
@@ -205,14 +184,14 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // Function to build the image widget for the carousel slider
-  Widget buildImage(String imageUrl, int index, String title) {
+  // 🔹 CAROUSEL ITEM UI
+  Widget _buildCarouselItem(String imageUrl, String title) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 4)),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 6),
         ],
       ),
       child: ClipRRect(
@@ -220,29 +199,24 @@ class _HomeState extends State<Home> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Background image
             CachedNetworkImage(
               imageUrl: imageUrl,
               fit: BoxFit.cover,
-              placeholder: (context, url) =>
-                  Center(child: CircularProgressIndicator()),
-              errorWidget: (context, url, error) => Container(
+              placeholder: (_, __) =>
+                  const Center(child: CircularProgressIndicator()),
+              errorWidget: (_, __, ___) => Container(
                 color: Colors.grey.shade300,
-                child: Icon(Icons.broken_image, size: 60, color: Colors.grey),
+                child: const Icon(Icons.broken_image, size: 60),
               ),
             ),
-
-            // Overlay with title
             Positioned(
+              bottom: 0,
               left: 0,
               right: 0,
-              bottom: 0,
               child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Colors.black54, Colors.transparent],
                     begin: Alignment.bottomCenter,
@@ -251,20 +225,13 @@ class _HomeState extends State<Home> {
                 ),
                 child: Text(
                   title,
-                  style: TextStyle(
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    shadows: [
-                      Shadow(
-                        offset: Offset(0, 1),
-                        blurRadius: 2,
-                        color: Colors.black54,
-                      ),
-                    ],
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
@@ -274,28 +241,33 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget buildIndicator() => AnimatedSmoothIndicator(
-    activeIndex: activeindex,
-    count: 5,
-    effect: WormEffect(
-      dotHeight: 8,
-      dotWidth: 8,
-      activeDotColor: Colors.blue,
-      dotColor: Colors.grey,
-    ),
-  );
+  // 🔹 INDICATOR
+  Widget _buildIndicator() => AnimatedSmoothIndicator(
+        activeIndex: activeIndex,
+        count: _newsItems.length,
+        effect: const WormEffect(
+          dotHeight: 8,
+          dotWidth: 8,
+          activeDotColor: Colors.blue,
+        ),
+      );
 }
 
-//Categories section on top code!!
-// ignore: must_be_immutable
+// ---------------- CATEGORY TILE ----------------
 class CategoryTile extends StatelessWidget {
-  dynamic image, categoryName;
-  CategoryTile({super.key, this.image, this.categoryName});
+  final String image;
+  final String categoryName;
+
+  const CategoryTile({
+    super.key,
+    required this.image,
+    required this.categoryName,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(right: 16),
+      margin: const EdgeInsets.only(right: 16),
       child: Stack(
         children: [
           ClipRRect(
@@ -308,18 +280,17 @@ class CategoryTile extends StatelessWidget {
             ),
           ),
           Container(
-            alignment: Alignment.center,
             width: 120,
             height: 60,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
               color: Colors.black26,
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               categoryName,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
-                fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -330,11 +301,10 @@ class CategoryTile extends StatelessWidget {
   }
 }
 
-// blog tile with image, title, description, and url
-// This tile will be used to display the latest news articles in a list format.
-
+// ---------------- BLOG TILE ----------------
 class BlogTile extends StatelessWidget {
   final String imageurl, title, desc, url;
+
   const BlogTile({
     super.key,
     required this.imageurl,
@@ -349,7 +319,9 @@ class BlogTile extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => (ArticleView(blogUrl: url))),
+          MaterialPageRoute(
+            builder: (_) => ArticleView(blogUrl: url),
+          ),
         );
       },
       child: Material(
@@ -358,7 +330,8 @@ class BlogTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              margin: EdgeInsets.only(left: 20.0, right: 10.0, bottom: 10.0),
+              margin:
+                  const EdgeInsets.only(left: 20, right: 10, bottom: 10),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: CachedNetworkImage(
@@ -374,22 +347,22 @@ class BlogTile extends StatelessWidget {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.45,
                   child: Text(
-                    maxLines: 2,
                     title,
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.45,
                   child: Text(
                     desc,
                     maxLines: 3,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 14, color: Colors.grey),
                   ),
                 ),
               ],
